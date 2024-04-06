@@ -3,7 +3,28 @@ macro_rules! add {
     ($head:expr $(; $tail:expr)*) => { $head + add!($($tail);*) };
 }
 
+macro_rules! add_plus {
+    // ベースケース: 引数がない場合は0を返す
+    () => { 0 };
+
+    // リテラル1つのみの場合はそれを返す
+    ($head:expr) => { $head };
+
+    // 2つ以上の引数を`+`で区切って処理する
+    ($head:expr , $($tail:tt)+) => {
+        $head + add_plus!($($tail)+)
+    };
+}
+
+#[allow(unused)]
+macro_rules! info {
+    ($($x:tt)*) => (
+        #[cfg(feature = "log")] {
+            log::info!($($x)*);
+        }
+    )
+}
+
 fn main() {
-    let sum = add!(1; 1; 1);
-    println!("The sum is: {}", sum);
+    info!(42);
 }

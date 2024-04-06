@@ -7,3 +7,4 @@ edition = "2021"
 
 [dependencies]
 quote = "1.0.35"
+log = { version = "0.4.4", optional = true }
