@@ -122,3 +122,45 @@ impl Parser {
 
     fn ignore(&mut self) {}
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn it_parses_simple_event() {
+        let mut parser = Parser::new();
+        let test_stream = "event: test_event\ndata: Test data\n\n";
+
+        let mut events = Vec::new();
+
+        parser.feed(test_stream, |event_type, data, id, reconnection_time| {
+            events.push((event_type, data, id, reconnection_time));
+        });
+
+        assert_eq!(events.len(), 1);
+        assert_eq!(events[0].0, "test_event");
+        assert_eq!(events[0].1, "Test data");
+        assert_eq!(events[0].2, "");
+        assert_eq!(events[0].3, None);
+    }
+
+    #[test]
+    fn it_handles_multiple_events() {
+        let mut parser = Parser::new();
+        let test_stream = "event: first_event\ndata: First data\n\n\
+                           event: second_event\ndata: Second data\n\n";
+
+        let mut events = Vec::new();
+
+        parser.feed(test_stream, |event_type, data, id, reconnection_time| {
+            events.push((event_type, data, id, reconnection_time));
+        });
+
+        assert_eq!(events.len(), 2);
+        assert_eq!(events[0].0, "first_event");
+        assert_eq!(events[0].1, "First data");
+        assert_eq!(events[1].0, "second_event");
+        assert_eq!(events[1].1, "Second data");
+    }
+}
